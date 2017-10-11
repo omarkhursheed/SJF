@@ -167,6 +167,8 @@ void preemptiveSJF(vector<process> v)
 	vector <process>:: iterator it; 
 	int totalCPUBursts = 0;
 
+ 	ofstream myfile;
+  	myfile.open ("preemptive.txt", ios::out | ios::trunc);
 
 	for (it = v.begin(); it != v.end(); it++)
 	{
@@ -225,7 +227,6 @@ void preemptiveSJF(vector<process> v)
 			v.erase(nextProcessIndex);
 		}
 
-		
 	}
 	cout << "Process Name" << '\t' << "Turnaround Time" << '\t' << "Waiting Time" << endl;
 	float turnaroundAvg = 0;
@@ -249,6 +250,8 @@ void nonPreemptiveSJF(vector<process> v)
 	vector <process> orderedProcesses;
 	vector <process> currentAvailableProcesses;
 	//ofstream myfile.open("answers.txt");
+	ofstream myfile;
+  	myfile.open ("nonpreemptive.txt", ios::out | ios::trunc);
 
 	vector <process>:: iterator nextProcessIndex = v.begin();
 	/*nextProcessIndex->setProcessStartTime(nextProcessIndex->getArrivalTimes());
@@ -310,6 +313,7 @@ void nonPreemptiveSJF(vector<process> v)
 		it->getProcessEndTime()-it->getPseudoArrivalTime()-it->getPseudoCPUBursts() << endl;
 		turnaroundAvg +=  it->getProcessEndTime()-it->getPseudoArrivalTime();
 		waitingAvg += it->getProcessEndTime()-it->getPseudoArrivalTime()-it->getPseudoCPUBursts();
+		myfile << it->getProcessName() << ',' << it->getProcessStartTime() << ',' << it->getProcessEndTime() << endl;
 	}
 	cout << endl << "Average Waiting Time: " << float(waitingAvg)/float(size)<<endl;
 	

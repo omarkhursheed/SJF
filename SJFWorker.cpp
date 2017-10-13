@@ -177,14 +177,19 @@ void preemptiveSJF(vector<process> v)
 	int size = v.size();
 	int currentTime = 0;
 	sort(v.begin(), v.end());
+
 	nextProcessIndex = v.begin();
+	currentTime = nextProcessIndex->getPseudoArrivalTime();
+	int forever = currentTime;
 	nextProcessIndex->setProcessStartTime(nextProcessIndex->getArrivalTimes());
 	nextProcessIndex->decrementCPUBursts();
+	myfile << nextProcessIndex->getProcessName() << ',' << currentTime << endl;
+
 	currentTime++;
 
 	for(it = v.begin(); it != v.end(); it++)
 		{
-			if(it->getArrivalTimes()!=0)
+			if(it->getArrivalTimes()!=forever)
 			{
 				it->decrementArrivalTime();
 			}
@@ -197,16 +202,24 @@ void preemptiveSJF(vector<process> v)
 		}
 	while(orderedProcesses.size() != size)
 	{
+		
 		sort(v.begin(), v.end());
 		nextProcessIndex = v.begin();
 		if(nextProcessIndex->getCPUBursts() == nextProcessIndex->getPseudoCPUBursts())
 		{
 			if(currentTime < nextProcessIndex->getPseudoArrivalTime())
 			{
+				int putfile = nextProcessIndex->getPseudoArrivalTime()-currentTime;
+				for(int i = 0; i < putfile; i++)
+				{
+					myfile << "I" << ',' << currentTime+i << endl;
+				}
 				currentTime = nextProcessIndex->getPseudoArrivalTime();
+				
 			}
 			nextProcessIndex->setProcessStartTime(currentTime);
 		}
+		myfile << nextProcessIndex->getProcessName() << ',' << currentTime << endl;
 		nextProcessIndex->decrementCPUBursts();
 		currentTime++;
 		//cout << nextProcessIndex->getCPUBursts() << "abc" << endl;
@@ -215,7 +228,7 @@ void preemptiveSJF(vector<process> v)
 		
 		for(it = v.begin(); it != v.end(); it++)
 		{
-			if(it->getArrivalTimes()!=0)
+			if(it->getArrivalTimes()!=forever)
 			{
 				it->decrementArrivalTime();
 			}
@@ -226,7 +239,6 @@ void preemptiveSJF(vector<process> v)
 			orderedProcesses.push_back(*nextProcessIndex);
 			v.erase(nextProcessIndex);
 		}
-
 	}
 	cout << "Process Name" << '\t' << "Turnaround Time" << '\t' << "Waiting Time" << endl;
 	float turnaroundAvg = 0;
@@ -264,15 +276,20 @@ void nonPreemptiveSJF(vector<process> v)
 
 	nextProcessIndex = v.begin();
 	
-	currentTime = nextProcessIndex->getArrivalTimes();
+	currentTime = nextProcessIndex->getPseudoArrivalTime();
+	int forever = currentTime;
+	myfile << nextProcessIndex->getProcessName() << ',' << currentTime << endl;
+
 	nextProcessIndex->setProcessStartTime(currentTime);
 	nextProcessIndex->setProcessEndTime(currentTime+nextProcessIndex->getCPUBursts());
+
 	currentTime += nextProcessIndex->getCPUBursts();
 	orderedProcesses.push_back(*nextProcessIndex);
+
 	for(it = v.begin(); it != v.end(); it++)
 	{
 		int count = 0;
-		while(it->getArrivalTimes()!=0 && count !=nextProcessIndex->getCPUBursts())
+		while(it->getArrivalTimes()!=forever && count !=nextProcessIndex->getCPUBursts())
 		{
 			it->decrementArrivalTime();
 			count++;
@@ -286,8 +303,11 @@ void nonPreemptiveSJF(vector<process> v)
 		nextProcessIndex = v.begin();
 		if(currentTime < nextProcessIndex->getPseudoArrivalTime())
 		{
+			myfile << "I" << "," << currentTime << endl;
 			currentTime = nextProcessIndex->getPseudoArrivalTime();	
-		}
+			
+		}				
+		myfile << nextProcessIndex->getProcessName() << ',' << currentTime << endl;
 		nextProcessIndex->setProcessStartTime(currentTime);
 		nextProcessIndex->setProcessEndTime(currentTime+nextProcessIndex->getCPUBursts());
 		currentTime+=nextProcessIndex->getCPUBursts();	
@@ -296,14 +316,16 @@ void nonPreemptiveSJF(vector<process> v)
 		for(it = v.begin(); it != v.end(); it++)
 		{
 			int count = 0;
-			while(it->getArrivalTimes()!=0 && count != nextProcessIndex->getCPUBursts())
+			while(it->getArrivalTimes()!=forever && count != nextProcessIndex->getCPUBursts())
 			{
 				it->decrementArrivalTime();
 				count++;
 			}
 		}
+		//it = nextProcessIndex;
 		v.erase(nextProcessIndex);	
 	}
+	myfile  << " ," << currentTime << endl;
 	cout << "Process Name" << '\t' << "Turnaround Time" << '\t' << "Waiting Time" << endl;
 	float turnaroundAvg = 0;
 	float waitingAvg = 0;
@@ -313,7 +335,7 @@ void nonPreemptiveSJF(vector<process> v)
 		it->getProcessEndTime()-it->getPseudoArrivalTime()-it->getPseudoCPUBursts() << endl;
 		turnaroundAvg +=  it->getProcessEndTime()-it->getPseudoArrivalTime();
 		waitingAvg += it->getProcessEndTime()-it->getPseudoArrivalTime()-it->getPseudoCPUBursts();
-		myfile << it->getProcessName() << ',' << it->getProcessStartTime() << ',' << it->getProcessEndTime() << endl;
+		//myfile << it->getProcessName() << ',' << it->getProcessStartTime() << ',' << it->getProcessEndTime() << endl;
 	}
 	cout << endl << "Average Waiting Time: " << float(waitingAvg)/float(size)<<endl;
 	
